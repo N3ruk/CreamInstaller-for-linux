@@ -1,24 +1,22 @@
-# CreamLinux 3.0.7
+# CreamLinux v1.0.0
 
-First public GitHub release of the current Qt-based CreamLinux branch.
+First public release of CreamLinux.
 
 ## Highlights
 
-- Native Qt interface with polished compact layout.
-- Multi-library Steam discovery, including libraries on additional drives.
-- Duplicate installations grouped under one game with all routes retained.
+- Native Qt interface.
+- Steam library discovery across multiple drives and Flatpak Steam.
+- Duplicate installs grouped while retaining every detected game route.
 - Heroic / Legendary Epic discovery.
 - CreamAPI, SmokeAPI and ScreamAPI workflows with backup and restore.
-- DLC metadata lookup and persistent per-game selection.
-- Easy Anti-Cheat and BattlEye titles remain visible and receive warnings instead of being silently filtered.
+- DLC metadata lookup and persistent per-game selections.
+- Easy Anti-Cheat and BattlEye titles remain visible with explicit warnings.
 - Non-game Steam runtimes/tools are filtered from the library.
-- New neutral DLC-unlock desktop icon.
-- Universal installer, `.deb` package and x86_64 AppImage distribution.
+- Neutral DLC-unlocker desktop icon.
+- Universal ZIP, Debian package and x86_64 AppImage distributions.
 
-## Downloads
+## Release assets
 
-Recommended distributions:
-
-- `CreamLinux-3.0.7-x86_64.AppImage` — portable x86_64 build.
-- `creamlinux_3.0.7_all.deb` — Debian/Ubuntu package.
-- `CreamLinux-3.0.7-source.zip` — source bundle.
+- `CreamLinux-1.0.0-x86_64.AppImage`
+- `CreamLinux-1.0.0.deb`
+- `CreamLinux-1.0.0.zip`
