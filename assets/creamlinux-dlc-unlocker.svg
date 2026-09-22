@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect x="12" y="12" width="232" height="232" rx="54" fill="#6ED8F3"/>
+  <rect x="24" y="24" width="208" height="208" rx="44" fill="#F7FCFE" stroke="#B7EEF8" stroke-width="4"/>
+  <path d="M58 105c0-10 8-18 18-18h104c10 0 18 8 18 18v20c-10 2-17 11-17 21s7 19 17 21v20c0 10-8 18-18 18H76c-10 0-18-8-18-18v-20c10-2 17-11 17-21s-7-19-17-21z" fill="#FFFFFF" stroke="#1E9FC9" stroke-width="7"/>
+  <path d="M101 98v96" stroke="#9DDBEC" stroke-width="4" stroke-dasharray="8 8"/>
+  <text x="146" y="160" text-anchor="middle" font-family="DejaVu Sans, Noto Sans, sans-serif" font-size="34" font-weight="900" fill="#147FA5">DLC</text>
+  <path d="M104 92V70c0-22 16-38 39-38 18 0 32 9 38 25" fill="none" stroke="#147FA5" stroke-width="13" stroke-linecap="round"/>
+  <rect x="89" y="68" width="70" height="55" rx="16" fill="#6ED8F3" stroke="#147FA5" stroke-width="8"/>
+  <circle cx="124" cy="94" r="7" fill="#147FA5"/>
+  <path d="M124 101v11" stroke="#147FA5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M198 60v15M190.5 67.5h15" stroke="#1E9FC9" stroke-width="5" stroke-linecap="round"/>
+</svg>
