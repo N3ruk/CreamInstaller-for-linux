@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=CreamLinux
+Comment=Manage and unlock DLC for Steam and Epic games
+Comment[es]=Gestiona y desbloquea DLC para juegos de Steam y Epic
+Exec=creamlinux
+Icon=creamlinux-dlc-unlocker
+Terminal=false
+Type=Application
+Categories=Game;Utility;
+Keywords=Steam;Epic;DLC;CreamAPI;SmokeAPI;ScreamAPI;
+StartupNotify=true
+StartupWMClass=CreamLinux
