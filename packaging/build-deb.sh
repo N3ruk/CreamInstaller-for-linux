@@ -1,19 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="3.0.7"
+VERSION="1.0.0"
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 OUT="$ROOT/dist"
 WORK="$(mktemp -d /tmp/creamlinux-deb.XXXXXX)"
 trap 'rm -rf "$WORK"' EXIT
 PKG="$WORK/creamlinux"
 
-mkdir -p \
-  "$PKG/DEBIAN" \
-  "$PKG/usr/bin" \
-  "$PKG/usr/share/CreamLinux" \
-  "$PKG/usr/share/applications" \
-  "$PKG/usr/share/icons/hicolor/scalable/apps"
+mkdir -p   "$PKG/DEBIAN"   "$PKG/usr/bin"   "$PKG/usr/share/CreamLinux"   "$PKG/usr/share/applications"   "$PKG/usr/share/icons/hicolor/scalable/apps"
 
 cp "$ROOT/creamlinux.py" "$PKG/usr/share/CreamLinux/"
 cp -a "$ROOT/creamapi" "$ROOT/smokeapi" "$ROOT/screamapi" "$ROOT/assets" "$PKG/usr/share/CreamLinux/"
@@ -55,5 +50,5 @@ SH
 chmod 0755 "$PKG/DEBIAN/postinst" "$PKG/DEBIAN/postrm"
 
 mkdir -p "$OUT"
-dpkg-deb --build --root-owner-group "$PKG" "$OUT/creamlinux_${VERSION}_all.deb"
-echo "$OUT/creamlinux_${VERSION}_all.deb"
+dpkg-deb --build --root-owner-group "$PKG" "$OUT/CreamLinux-${VERSION}.deb"
+echo "$OUT/CreamLinux-${VERSION}.deb"
