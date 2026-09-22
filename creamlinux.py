@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CreamLinux 3.0.7
+CreamLinux 1.0.0
 Native Qt rewrite of CreamLinux 2.x.
 
 Functional scope retained from 2.0.0:
@@ -15,7 +15,7 @@ Functional scope retained from 2.0.0:
 - Restore original DLLs and remove generated configuration
 - Open detected DLL directories in the desktop file manager
 
-The 3.x UI is fully native Qt and does not use an embedded web browser or local HTTP server.
+The 1.0.0 UI is fully native Qt and does not use an embedded web browser or local HTTP server.
 """
 
 from __future__ import annotations
