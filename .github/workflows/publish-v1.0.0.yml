@@ -20,4 +20,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release view v1.0.0 >/dev/null 2>&1 && gh release delete v1.0.0 --yes --cleanup-tag || true
-          gh release create v1.0.0             --target main             --title "CreamLinux v1.0.0"             --notes-file RELEASE_NOTES.md             release-assets/CreamLinux-1.0.0-x86_64.AppImage             release-assets/CreamLinux-1.0.0.deb             release-assets/CreamLinux-1.0.0.zip
+          gh release create v1.0.0 \
+            --target main \
+            --title "CreamLinux v1.0.0" \
+            --notes-file RELEASE_NOTES.md
