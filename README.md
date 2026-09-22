@@ -16,7 +16,7 @@ CreamLinux is a native Qt desktop application for Linux that discovers Steam and
 
 ## Downloads
 
-Use the GitHub Releases page for packaged builds. **v1.0.0** provides:
+The first public release is **v1.0.0**. Packaged artifacts use these filenames:
 
 - `CreamLinux-1.0.0-x86_64.AppImage` — portable x86_64 build.
 - `CreamLinux-1.0.0.deb` — Debian/Ubuntu package.
