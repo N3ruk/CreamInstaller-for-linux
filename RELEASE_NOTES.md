@@ -1,30 +1,61 @@
 # CreamLinux v1.0.0
 
-First public release of CreamLinux.
+**First public release of CreamLinux for Linux.**
 
-## Highlights
+CreamLinux provides a native Qt interface for detecting Steam and Epic/Heroic/Legendary games, retrieving DLC information and managing supported DLC configuration backends while keeping original files recoverable.
 
-- Native Qt interface.
-- Steam library discovery across multiple drives and Flatpak Steam.
-- Duplicate installs grouped while retaining every detected game route.
-- Heroic / Legendary Epic discovery.
-- CreamAPI, SmokeAPI and ScreamAPI workflows with backup and restore.
-- DLC metadata lookup and persistent per-game selections.
-- Easy Anti-Cheat and BattlEye titles remain visible with explicit warnings.
-- Non-game Steam runtimes/tools are filtered from the library.
-- Neutral DLC-unlocker desktop icon.
-- Universal ZIP, Debian package and x86_64 AppImage distributions.
+## What's included
 
-## Release assets
+- Native **Qt 6** desktop interface.
+- Detection of **Steam libraries on multiple drives** through `libraryfolders.vdf`.
+- Support for native Steam and Flatpak Steam.
+- Heroic / Legendary game discovery.
+- Duplicate installations grouped into one game while retaining every detected route.
+- CreamAPI and SmokeAPI support for Steam.
+- ScreamAPI support for Epic-based installations.
+- Original DLL backup and restore.
+- DLC metadata lookup, local cache and persistent per-game selection.
+- Easy Anti-Cheat / BattlEye titles remain visible and receive an explicit warning instead of being silently filtered.
+- Proton, Steam Linux Runtime, Steamworks redistributables, Lossless Scaling and other non-game Steam entries are excluded from the game library.
+- Games with no compatible target DLL remain visible with a clear status.
+- New neutral DLC-unlocker desktop icon.
+- Responsive interface with game artwork and compact-window scrolling.
 
-- `CreamLinux-1.0.0-x86_64.AppImage`
-- `CreamLinux-1.0.0.deb`
-- `CreamLinux-1.0.0.zip`
+## Downloads
 
-## SHA-256
+Choose the package that best matches your system:
 
-```text
-9405690f9f698d7944cae6ffd597a265805fa2d6f239abb1209fd1ea45b74c40  CreamLinux-1.0.0-x86_64.AppImage
-c5422cca0428f17cff15c1fb528e62655843c086d84ba7c8c32afd5e1e7021b6  CreamLinux-1.0.0.deb
-2d53db54223c9c4dac4fe041597d22d9866961f93457e161920cc5b1a0a8e15c  CreamLinux-1.0.0.zip
+| File | Use case |
+| --- | --- |
+| **`CreamLinux-1.0.0-x86_64.AppImage`** | Portable build for most x86_64 Linux distributions |
+| **`CreamLinux-1.0.0.deb`** | Ubuntu, Debian and compatible systems |
+| **`CreamLinux-1.0.0.zip`** | Universal/source installation |
+| **`CreamLinux-1.0.0-SteamOS.zip`** | SteamOS / Steam Deck optimized user-space installation |
+
+### SteamOS / Steam Deck
+
+The dedicated SteamOS package is intended for systems with an immutable/read-only root filesystem. It installs CreamLinux into the user's home directory and does not require disabling SteamOS read-only mode.
+
+The AppImage can also be used directly on SteamOS when preferred.
+
+## Quick start
+
+### AppImage
+
+```bash
+chmod +x CreamLinux-1.0.0-x86_64.AppImage
+./CreamLinux-1.0.0-x86_64.AppImage
 ```
+
+### Universal / SteamOS ZIP
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+## Notes
+
+CreamLinux modifies files inside game installations. Review the paths detected by the application before installing or restoring any configuration, particularly on games protected by anti-cheat software.
+
+Use CreamLinux only with software and content you are authorized to modify.
