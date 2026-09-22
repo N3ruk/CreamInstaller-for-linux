@@ -997,7 +997,8 @@ def uninstall_steam_unlocker(directory: str) -> List[dict]:
         ("steam_api.dll", "steam_api_o.dll"),
         ("steam_api64.dll", "steam_api64_o.dll"),
     ]:
-        original = path / original_name\n        backup = path / backup_name
+        original = path / original_name
+        backup = path / backup_name
         if backup.exists():
             try:
                 if original.exists():
