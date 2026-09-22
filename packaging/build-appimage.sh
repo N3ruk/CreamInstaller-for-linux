@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="3.0.7"
+VERSION="1.0.0"
 ARCH="x86_64"
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 BUILD="$ROOT/build/appimage"
@@ -17,19 +17,7 @@ python3 -m venv "$VENV"
 "$VENV/bin/python" -m pip install --upgrade pip
 "$VENV/bin/python" -m pip install -r "$ROOT/requirements.txt" pyinstaller
 
-"$VENV/bin/pyinstaller" \
-  --noconfirm \
-  --clean \
-  --onedir \
-  --name creamlinux \
-  --distpath "$BUILD/pyinstaller-dist" \
-  --workpath "$BUILD/pyinstaller-build" \
-  --specpath "$BUILD" \
-  --add-data "$ROOT/assets:assets" \
-  --add-data "$ROOT/creamapi:creamapi" \
-  --add-data "$ROOT/smokeapi:smokeapi" \
-  --add-data "$ROOT/screamapi:screamapi" \
-  "$ROOT/creamlinux.py"
+"$VENV/bin/pyinstaller"   --noconfirm   --clean   --onedir   --name creamlinux   --distpath "$BUILD/pyinstaller-dist"   --workpath "$BUILD/pyinstaller-build"   --specpath "$BUILD"   --add-data "$ROOT/assets:assets"   --add-data "$ROOT/creamapi:creamapi"   --add-data "$ROOT/smokeapi:smokeapi"   --add-data "$ROOT/screamapi:screamapi"   "$ROOT/creamlinux.py"
 
 cp -a "$BUILD/pyinstaller-dist/creamlinux/." "$APPDIR/usr/lib/creamlinux/"
 cat > "$APPDIR/usr/bin/creamlinux" <<'SH'
@@ -53,9 +41,7 @@ cp "$ROOT/assets/creamlinux-dlc-unlocker.svg" "$APPDIR/creamlinux-dlc-unlocker.s
 ln -sf creamlinux-dlc-unlocker.svg "$APPDIR/.DirIcon"
 
 if [[ ! -x "$APPIMAGETOOL" ]]; then
-  curl -fL \
-    "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${ARCH}.AppImage" \
-    -o "$APPIMAGETOOL"
+  curl -fL     "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${ARCH}.AppImage"     -o "$APPIMAGETOOL"
   chmod +x "$APPIMAGETOOL"
 fi
 
