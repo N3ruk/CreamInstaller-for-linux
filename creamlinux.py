@@ -1997,7 +1997,8 @@ class MainWindow(QMainWindow):
             path = str(item.data(Qt.ItemDataRole.UserRole))
         elif self.current_game:
             installs = game_install_dirs(self.current_game)
-            path = str(installs[0]) if installs else ""        else:
+            path = str(installs[0]) if installs else ""
+        else:
             path = ""
         if path:
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
