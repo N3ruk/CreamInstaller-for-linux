@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+*.spec
+*.AppImage
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+.DS_Store
+.idea/
+.vscode/
+
+# Third-party compatibility binaries are distributed in packaged releases,
+# not tracked in this repository.
+creamapi/*.dll
+smokeapi/*.dll
+screamapi/*.dll
