@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Python syntax
+        run: python3 -m py_compile creamlinux.py
+
+      - name: Validate shell scripts
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n run-portable.sh
+          bash -n packaging/build-deb.sh
+          bash -n packaging/build-appimage.sh
