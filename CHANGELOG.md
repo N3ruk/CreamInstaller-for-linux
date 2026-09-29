@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 — Icon refresh
+
+- Replaced the application, launcher and package icon with the definitive
+  CreamLinux PNG supplied by the project owner.
+- Standardized the fourth release artifact as the SteamOS package, replacing
+  the temporary `SteamOS-hotfix` label while preserving its launcher fixes.
+- No application logic or DLC-management behavior changed.
+
 ## 1.0.0 — First public release
 
 - Native Qt 6 interface with a polished responsive layout.

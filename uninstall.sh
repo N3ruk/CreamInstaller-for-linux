@@ -8,13 +8,13 @@ if [[ "$MODE" == "system" ]]; then
   PREFIX="/opt/CreamLinux"
   BIN="/usr/local/bin/creamlinux"
   DESKTOP="/usr/share/applications/$APP_ID.desktop"
-  ICON="/usr/share/icons/hicolor/scalable/apps/creamlinux-dlc-unlocker.svg"
+  ICON="/usr/share/icons/hicolor/512x512/apps/creamlinux-dlc-unlocker.png"
   OLD_ICON="/usr/share/icons/hicolor/scalable/apps/creamlinux.svg"
 else
   PREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/CreamLinux/app"
   BIN="$HOME/.local/bin/creamlinux"
   DESKTOP="${XDG_DATA_HOME:-$HOME/.local/share}/applications/$APP_ID.desktop"
-  ICON="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps/creamlinux-dlc-unlocker.svg"
+  ICON="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/512x512/apps/creamlinux-dlc-unlocker.png"
   OLD_ICON="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps/creamlinux.svg"
 fi
 rm -rf "$PREFIX"

@@ -51,12 +51,12 @@ if [[ "$MODE" == "system" ]]; then
   PREFIX="/opt/CreamLinux"
   BIN_DIR="/usr/local/bin"
   APP_DIR="/usr/share/applications"
-  ICON_DIR="/usr/share/icons/hicolor/scalable/apps"
+  ICON_DIR="/usr/share/icons/hicolor/512x512/apps"
 else
   PREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/CreamLinux/app"
   BIN_DIR="$HOME/.local/bin"
   APP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
-  ICON_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps"
+  ICON_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/512x512/apps"
 fi
 
 printf '\nCreamLinux universal installer\n'
@@ -133,8 +133,8 @@ EOF
 chmod 0755 "$BIN_DIR/creamlinux"
 
 cp "$HERE/creamlinux.desktop" "$APP_DIR/$APP_ID.desktop"
-cp "$HERE/assets/creamlinux-dlc-unlocker.svg" "$ICON_DIR/creamlinux-dlc-unlocker.svg"
-chmod 0644 "$APP_DIR/$APP_ID.desktop" "$ICON_DIR/creamlinux-dlc-unlocker.svg"
+cp "$HERE/assets/creamlinux-dlc-unlocker.png" "$ICON_DIR/creamlinux-dlc-unlocker.png"
+chmod 0644 "$APP_DIR/$APP_ID.desktop" "$ICON_DIR/creamlinux-dlc-unlocker.png"
 
 if command -v update-desktop-database >/dev/null 2>&1; then
   update-desktop-database "$APP_DIR" >/dev/null 2>&1 || true

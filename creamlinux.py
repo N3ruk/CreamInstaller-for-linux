@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CreamLinux 1.0.0
+CreamLinux 1.0.1
 Native Qt rewrite of CreamLinux 2.x.
 
 Functional scope retained from 2.0.0:
@@ -15,7 +15,7 @@ Functional scope retained from 2.0.0:
 - Restore original DLLs and remove generated configuration
 - Open detected DLL directories in the desktop file manager
 
-The 1.0.0 UI is fully native Qt and does not use an embedded web browser or local HTTP server.
+The 1.0.1 UI is fully native Qt and does not use an embedded web browser or local HTTP server.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 APP_NAME = "CreamLinux"
 APP_ID = "com.creamlinux.CreamLinux"
 
@@ -1463,7 +1463,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"CreamLinux {VERSION}")
         self.resize(1200, 700)
         self.setMinimumSize(900, 520)
-        icon = ASSETS_DIR / "creamlinux-dlc-unlocker.svg"
+        icon = ASSETS_DIR / "creamlinux-dlc-unlocker.png"
         if icon.exists():
             self.setWindowIcon(QIcon(str(icon)))
         self.setStyleSheet(STYLE)

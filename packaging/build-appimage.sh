@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.0.1"
 ARCH="x86_64"
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 BUILD="$ROOT/build/appimage"
@@ -37,8 +37,8 @@ chmod 0755 "$APPDIR/AppRun"
 
 cp "$ROOT/creamlinux.desktop" "$APPDIR/CreamLinux.desktop"
 printf '\nX-AppImage-Version=%s\n' "$VERSION" >> "$APPDIR/CreamLinux.desktop"
-cp "$ROOT/assets/creamlinux-dlc-unlocker.svg" "$APPDIR/creamlinux-dlc-unlocker.svg"
-ln -sf creamlinux-dlc-unlocker.svg "$APPDIR/.DirIcon"
+cp "$ROOT/assets/creamlinux-dlc-unlocker.png" "$APPDIR/creamlinux-dlc-unlocker.png"
+ln -sf creamlinux-dlc-unlocker.png "$APPDIR/.DirIcon"
 
 if [[ ! -x "$APPIMAGETOOL" ]]; then
   curl -fL     "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${ARCH}.AppImage"     -o "$APPIMAGETOOL"

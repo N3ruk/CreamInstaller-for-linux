@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.0.1"
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 OUT="$ROOT/dist"
 WORK="$(mktemp -d /tmp/creamlinux-deb.XXXXXX)"
 trap 'rm -rf "$WORK"' EXIT
 PKG="$WORK/creamlinux"
 
-mkdir -p   "$PKG/DEBIAN"   "$PKG/usr/bin"   "$PKG/usr/share/CreamLinux"   "$PKG/usr/share/applications"   "$PKG/usr/share/icons/hicolor/scalable/apps"
+mkdir -p   "$PKG/DEBIAN"   "$PKG/usr/bin"   "$PKG/usr/share/CreamLinux"   "$PKG/usr/share/applications"   "$PKG/usr/share/icons/hicolor/512x512/apps"
 
 cp "$ROOT/creamlinux.py" "$PKG/usr/share/CreamLinux/"
 cp -a "$ROOT/creamapi" "$ROOT/smokeapi" "$ROOT/screamapi" "$ROOT/assets" "$PKG/usr/share/CreamLinux/"
 cp "$ROOT/creamlinux.desktop" "$PKG/usr/share/applications/com.creamlinux.CreamLinux.desktop"
-cp "$ROOT/assets/creamlinux-dlc-unlocker.svg" "$PKG/usr/share/icons/hicolor/scalable/apps/creamlinux-dlc-unlocker.svg"
+cp "$ROOT/assets/creamlinux-dlc-unlocker.png" "$PKG/usr/share/icons/hicolor/512x512/apps/creamlinux-dlc-unlocker.png"
 
 cat > "$PKG/usr/bin/creamlinux" <<'SH'
 #!/bin/sh

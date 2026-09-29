@@ -1,6 +1,14 @@
-# CreamLinux v1.0.0
+# CreamLinux v1.0.1
 
-**First public release of CreamLinux for Linux.**
+**Visual icon refresh for CreamLinux.**
+
+This release changes only application identity assets and version metadata. It
+uses the definitive CreamLinux PNG in the application window, desktop launcher,
+AppImage and Debian package. Application logic and DLC-management behavior are
+unchanged from v1.0.0.
+
+The previous SteamOS hotfix package is now published under its permanent name:
+`CreamLinux-1.0.1-SteamOS.zip`.
 
 CreamLinux provides a native Qt interface for detecting Steam and Epic/Heroic/Legendary games, retrieving DLC information and managing supported DLC configuration backends while keeping original files recoverable.
 
@@ -18,7 +26,7 @@ CreamLinux provides a native Qt interface for detecting Steam and Epic/Heroic/Le
 - Easy Anti-Cheat / BattlEye titles remain visible and receive an explicit warning instead of being silently filtered.
 - Proton, Steam Linux Runtime, Steamworks redistributables, Lossless Scaling and other non-game Steam entries are excluded from the game library.
 - Games with no compatible target DLL remain visible with a clear status.
-- New neutral DLC-unlocker desktop icon.
+- Definitive CreamLinux icon supplied by the project owner.
 - Responsive interface with game artwork and compact-window scrolling.
 
 ## Downloads
@@ -27,10 +35,10 @@ Choose the package that best matches your system:
 
 | File | Use case |
 | --- | --- |
-| **`CreamLinux-1.0.0-x86_64.AppImage`** | Portable build for most x86_64 Linux distributions |
-| **`CreamLinux-1.0.0.deb`** | Ubuntu, Debian and compatible systems |
-| **`CreamLinux-1.0.0.zip`** | Universal/source installation |
-| **`CreamLinux-1.0.0-SteamOS.zip`** | SteamOS / Steam Deck optimized user-space installation |
+| **`CreamLinux-1.0.1-x86_64.AppImage`** | Portable build for most x86_64 Linux distributions |
+| **`CreamLinux-1.0.1.deb`** | Ubuntu, Debian and compatible systems |
+| **`CreamLinux-1.0.1.zip`** | Universal/source installation |
+| **`CreamLinux-1.0.1-SteamOS.zip`** | SteamOS / Steam Deck optimized user-space installation |
 
 ### SteamOS / Steam Deck
 
@@ -43,8 +51,8 @@ The AppImage can also be used directly on SteamOS when preferred.
 ### AppImage
 
 ```bash
-chmod +x CreamLinux-1.0.0-x86_64.AppImage
-./CreamLinux-1.0.0-x86_64.AppImage
+chmod +x CreamLinux-1.0.1-x86_64.AppImage
+./CreamLinux-1.0.1-x86_64.AppImage
 ```
 
 ### Universal / SteamOS ZIP
