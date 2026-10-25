@@ -1,69 +1,38 @@
-# CreamLinux v1.0.1
+# CreamLinux v1.0.2
 
-**Visual icon refresh for CreamLinux.**
+Performance-only update for game scanning, searching and artwork loading.
+The existing UI, game discovery rules and DLC installation/restoration logic
+are retained. Window and taskbar icons match the blue DLC launcher icon.
 
-This release changes only application identity assets and version metadata. It
-uses the definitive CreamLinux PNG in the application window, desktop launcher,
-AppImage and Debian package. Application logic and DLC-management behavior are
-unchanged from v1.0.0.
+## Improvements
 
-The previous SteamOS hotfix package is now published under its permanent name:
-`CreamLinux-1.0.1-SteamOS.zip`.
+- Four concurrent game-scan workers instead of serial library processing.
+- Shared DLC lookup pool; at most four Steam/Epic metadata requests in flight.
+- Reuse directory walks and DLL hashes per scan, including filesystem aliases,
+  while preserving all original installation paths.
+- Hash immutable bundled compatibility resources once per process.
+- Asynchronous artwork: slow CDNs no longer block typing or game selection.
+- Filtering retains the unchanged selected-game panel instead of recreating
+  its DLC controls at every keystroke.
 
-CreamLinux provides a native Qt interface for detecting Steam and Epic/Heroic/Legendary games, retrieving DLC information and managing supported DLC configuration backends while keeping original files recoverable.
+Metadata cache durations, fallback behavior, DLC ordering, installation
+backups, selections and bundled compatibility DLLs remain unchanged.
+No fixed speedup percentage is claimed: timings depend on library size,
+storage, cache state and store availability.
 
-## What's included
+## Packages
 
-- Native **Qt 6** desktop interface.
-- Detection of **Steam libraries on multiple drives** through `libraryfolders.vdf`.
-- Support for native Steam and Flatpak Steam.
-- Heroic / Legendary game discovery.
-- Duplicate installations grouped into one game while retaining every detected route.
-- CreamAPI and SmokeAPI support for Steam.
-- ScreamAPI support for Epic-based installations.
-- Original DLL backup and restore.
-- DLC metadata lookup, local cache and persistent per-game selection.
-- Easy Anti-Cheat / BattlEye titles remain visible and receive an explicit warning instead of being silently filtered.
-- Proton, Steam Linux Runtime, Steamworks redistributables, Lossless Scaling and other non-game Steam entries are excluded from the game library.
-- Games with no compatible target DLL remain visible with a clear status.
-- Definitive CreamLinux icon supplied by the project owner.
-- Responsive interface with game artwork and compact-window scrolling.
-
-## Downloads
-
-Choose the package that best matches your system:
-
-| File | Use case |
+| Download | Target |
 | --- | --- |
-| **`CreamLinux-1.0.1-x86_64.AppImage`** | Portable build for most x86_64 Linux distributions |
-| **`CreamLinux-1.0.1.deb`** | Ubuntu, Debian and compatible systems |
-| **`CreamLinux-1.0.1.zip`** | Universal/source installation |
-| **`CreamLinux-1.0.1-SteamOS.zip`** | SteamOS / Steam Deck optimized user-space installation |
+| `CreamLinux-1.0.2-SteamOS.zip` | SteamOS/Steam Deck, user-space installation |
+| `CreamLinux-1.0.2-x86_64.AppImage` | Portable x86_64 Linux build |
+| `CreamLinux-1.0.2.deb` | Debian/Ubuntu and compatible distributions |
+| `CreamLinux-1.0.2.zip` | Universal/source installation |
+| `SHA256SUMS` | Checksums for all four packages |
 
-### SteamOS / Steam Deck
+SteamOS: extract the ZIP and run `bash install.sh`. Installation stays in the
+user's home directory; read-only system and startup settings are untouched.
+Existing metadata and DLC selections are retained.
 
-The dedicated SteamOS package is intended for systems with an immutable/read-only root filesystem. It installs CreamLinux into the user's home directory and does not require disabling SteamOS read-only mode.
-
-The AppImage can also be used directly on SteamOS when preferred.
-
-## Quick start
-
-### AppImage
-
-```bash
-chmod +x CreamLinux-1.0.1-x86_64.AppImage
-./CreamLinux-1.0.1-x86_64.AppImage
-```
-
-### Universal / SteamOS ZIP
-
-```bash
-chmod +x install.sh
-./install.sh
-```
-
-## Notes
-
-CreamLinux modifies files inside game installations. Review the paths detected by the application before installing or restoring any configuration, particularly on games protected by anti-cheat software.
-
-Use CreamLinux only with software and content you are authorized to modify.
+Compatibility DLLs are byte-identical to v1.0.1. Third-party components retain
+their upstream licensing. Use only with software/content you may modify.

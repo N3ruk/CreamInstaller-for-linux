@@ -1,0 +1,13 @@
+FROM docker.io/library/ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 libpython3.10 python3-venv python3-pip binutils dpkg-dev zip curl ca-certificates \
+    file desktop-file-utils libglib2.0-0 libegl1 libopengl0 libdbus-1-3 \
+    libxkbcommon0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 \
+    libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 \
+    libxcb-xfixes0 libxcb-shape0 libxcb-randr0 libxcb-sync1 libxcb-xkb1 \
+    libfontconfig1 libxrender1 libxi6 libsm6 libice6 libgssapi-krb5-2 \
+    libgtk-3-0 libxcb-glx0 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+ENV APPIMAGE_EXTRACT_AND_RUN=1

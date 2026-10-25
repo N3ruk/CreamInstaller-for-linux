@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.2 — Search and scanning performance
+
+- Scan games concurrently with four workers and a shared DLC lookup pool;
+  limit Steam/Epic metadata traffic to four simultaneous requests.
+- Reuse filesystem walks and game DLL hashes within each scan, including
+  symlink aliases, without changing detected installation paths.
+- Hash bundled DLLs once per process instead of rereading them per game.
+- Download artwork asynchronously through Qt and cancel obsolete requests.
+- Keep the unchanged selected-game panel while filtering; avoid redundant
+  DLC-widget rebuilding and intermediate list repaints on every keystroke.
+- Match the existing launcher's blue DLC icon in the window, taskbar and packages.
+- No layout, discovery-rule, DLC-selection, installation/restoration or
+  compatibility-binary changes.
+
 ## 1.0.1 — Icon refresh
 
 - Replaced the application, launcher and package icon with the definitive

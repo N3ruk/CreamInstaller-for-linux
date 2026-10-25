@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CreamLinux 1.0.1
+CreamLinux 1.0.2
 Native Qt rewrite of CreamLinux 2.x.
 
 Functional scope retained from 2.0.0:
@@ -15,7 +15,7 @@ Functional scope retained from 2.0.0:
 - Restore original DLLs and remove generated configuration
 - Open detected DLL directories in the desktop file manager
 
-The 1.0.1 UI is fully native Qt and does not use an embedded web browser or local HTTP server.
+The 1.0.2 UI is fully native Qt and does not use an embedded web browser or local HTTP server.
 """
 
 from __future__ import annotations
@@ -30,6 +30,8 @@ import subprocess
 import sys
 import time
 import urllib.request
+from concurrent.futures import Future, ThreadPoolExecutor
+from threading import BoundedSemaphore, Lock
 
 try:
     import vdf as steam_vdf
@@ -39,7 +41,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 APP_NAME = "CreamLinux"
 APP_ID = "com.creamlinux.CreamLinux"
 
@@ -52,6 +54,7 @@ try:
     from PyQt6.QtCore import Qt, QThread, pyqtSignal as Signal, QSize
     from PyQt6.QtGui import QColor, QDesktopServices, QFont, QIcon, QPalette, QPixmap
     from PyQt6.QtCore import QUrl
+    from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
     from PyQt6.QtWidgets import (
         QApplication, QAbstractItemView, QButtonGroup, QCheckBox, QDialog,
         QDialogButtonBox, QFrame, QHBoxLayout, QHeaderView, QLabel, QLineEdit,
@@ -64,6 +67,7 @@ except ImportError:
     try:
         from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
         from PySide6.QtGui import QColor, QDesktopServices, QFont, QIcon, QPalette, QPixmap
+        from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
         from PySide6.QtWidgets import (
             QApplication, QAbstractItemView, QButtonGroup, QCheckBox, QDialog,
             QDialogButtonBox, QFrame, QHBoxLayout, QHeaderView, QLabel, QLineEdit,
@@ -776,37 +780,34 @@ def find_dll_dirs(game_dir: Path, platform: str) -> List[str]:
     return found
 
 
-def get_installed_unlocker(directory: str, platform: str) -> Optional[str]:
+@lru_cache(maxsize=3)
+def bundled_backend_hashes(unlocker: str) -> set:
+    """Immutable application resources need hashing only once per process."""
+    return {md5_file(get_dll_path(unlocker, bits)) for bits in (32, 64)}
+
+
+def get_installed_unlocker(directory: str, platform: str, file_hash=md5_file) -> Optional[str]:
     path = Path(directory)
     bundled = bundled_unlocker_hashes()
     if platform == "Steam":
         for name in ("steam_api.dll", "steam_api64.dll"):
             file = path / name
             if file.exists():
-                value = md5_file(file)
-                if value in CREAMAPI_MD5S or value in {
-                    md5_file(CREAMAPI_DIR / "steam_api.dll"),
-                    md5_file(CREAMAPI_DIR / "steam_api64.dll"),
-                }:
+                value = file_hash(file)
+                if value in CREAMAPI_MD5S or value in bundled_backend_hashes("creamapi"):
                     return "creamapi"
-                if value in SMOKEAPI_MD5S or value in {
-                    md5_file(SMOKEAPI_DIR / "steam_api.dll"),
-                    md5_file(SMOKEAPI_DIR / "steam_api64.dll"),
-                }:
+                if value in SMOKEAPI_MD5S or value in bundled_backend_hashes("smokeapi"):
                     return "smokeapi"
         if (path / "cream_api.ini").exists():
             return "creamapi"
         if (path / "SmokeAPI.config.json").exists() or (path / "SmokeAPI.json").exists():
             return "smokeapi"
     elif platform == "Epic":
-        scream_hashes = {
-            md5_file(SCREAMAPI_DIR / "EOSSDK-Win32-Shipping.dll"),
-            md5_file(SCREAMAPI_DIR / "EOSSDK-Win64-Shipping.dll"),
-        }
+        scream_hashes = bundled_backend_hashes("screamapi")
         for name in ("EOSSDK-Win32-Shipping.dll", "EOSSDK-Win64-Shipping.dll"):
             file = path / name
             if file.exists():
-                value = md5_file(file)
+                value = file_hash(file)
                 if value in SCREAMAPI_MD5S or value in scream_hashes or value in bundled:
                     return "screamapi"
         if (path / "ScreamAPI.config.json").exists() or (path / "ScreamAPI.json").exists():
@@ -844,7 +845,18 @@ def fetch_steam_banner(app_id: str) -> Optional[Path]:
     return target if target.exists() else None
 
 
+# Shared DLC can occur in several games. Serialize only the same identifier's
+# cache/cooldown transaction; unrelated requests can proceed concurrently.
+_STORE_LOCKS = [Lock() for _ in range(64)]
+_METADATA_SLOTS = BoundedSemaphore(4)
+
+
 def query_steam_store(app_id: str, is_dlc: bool = False) -> Optional[dict]:
+    with _STORE_LOCKS[hash(str(app_id)) % len(_STORE_LOCKS)]:
+        return _query_steam_store(app_id, is_dlc)
+
+
+def _query_steam_store(app_id: str, is_dlc: bool = False) -> Optional[dict]:
     cache = APPINFO_DIR / f"{app_id}.json"
     cooldown = 1200 if is_dlc else 600
     if cache.exists() and not check_cooldown(app_id, cooldown):
@@ -852,7 +864,7 @@ def query_steam_store(app_id: str, is_dlc: bool = False) -> Optional[dict]:
     try:
         url = f"https://store.steampowered.com/api/appdetails?appids={app_id}"
         request = urllib.request.Request(url, headers={"User-Agent": f"CreamLinux/{VERSION}"})
-        with urllib.request.urlopen(request, timeout=12) as response:
+        with _METADATA_SLOTS, urllib.request.urlopen(request, timeout=12) as response:
             raw = json.loads(response.read())
         data = raw.get(str(app_id), {})
         if data.get("success") and data.get("data"):
@@ -863,19 +875,28 @@ def query_steam_store(app_id: str, is_dlc: bool = False) -> Optional[dict]:
     return read_json(cache) if cache.exists() else None
 
 
-def get_steam_dlc(app_id: str) -> List[dict]:
+def get_steam_dlc(app_id: str, executor=None) -> List[dict]:
     result: List[dict] = []
     store = query_steam_store(app_id)
     if not store:
         return result
-    for dlc_id in store.get("dlc", []):
+    def lookup(dlc_id):
         data = query_steam_store(str(dlc_id), is_dlc=True)
         name = (data.get("name") if data else None) or f"DLC {dlc_id}"
-        result.append({"id": str(dlc_id), "name": name, "type": "Steam"})
-    return result
+        return {"id": str(dlc_id), "name": name, "type": "Steam"}
+
+    ids = store.get("dlc", [])
+    # map preserves store ordering, unlike as_completed. Reuse one pool for
+    # the entire scan, rather than creating four more threads for every game.
+    return list(executor.map(lookup, ids) if executor else map(lookup, ids))
 
 
 def query_epic_catalog(namespace: str) -> List[dict]:
+    with _STORE_LOCKS[hash(f"epic_{namespace}") % len(_STORE_LOCKS)]:
+        return _query_epic_catalog(namespace)
+
+
+def _query_epic_catalog(namespace: str) -> List[dict]:
     cache = APPINFO_DIR / f"epic_{namespace}.json"
     if cache.exists() and not check_cooldown(f"epic_{namespace}", 600):
         return read_json(cache) or []
@@ -896,7 +917,7 @@ def query_epic_catalog(namespace: str) -> List[dict]:
                 "User-Agent": "EpicGamesLauncher/18.9.0-45233261+++Portal+Release-Live",
             },
         )
-        with urllib.request.urlopen(request, timeout=12) as response:
+        with _METADATA_SLOTS, urllib.request.urlopen(request, timeout=12) as response:
             raw = json.loads(response.read())
         catalog = raw.get("data", {}).get("Catalog", {})
         result: List[dict] = []
@@ -1135,52 +1156,115 @@ def uninstall_for_game(game: dict) -> dict:
     return {"game": game["name"], "results": all_log}
 
 
+class ScanCache:
+    """Per-scan single-flight work cache; never persist stale filesystem data.
+
+    Filesystem identity avoids walking/hash-reading symlink aliases repeatedly.
+    Relative DLL paths are projected back onto each original installation path,
+    so Steam's literal paths and duplicate-installation behavior are retained.
+    """
+    def __init__(self):
+        self._lock = Lock()
+        self._values = {}
+
+    def get(self, key, compute):
+        with self._lock:
+            future = self._values.get(key)
+            owner = future is None
+            if owner:
+                future = Future()
+                self._values[key] = future
+        if owner:
+            try:
+                future.set_result(compute())
+            except BaseException as exc:
+                future.set_exception(exc)
+                raise
+        return future.result()
+
+    @staticmethod
+    def identity(path):
+        stat = path.stat()
+        return (stat.st_dev, stat.st_ino) if stat.st_ino else str(path)
+
+    def dll_dirs(self, directory, platform):
+        try:
+            key = ("walk", self.identity(directory), platform)
+        except OSError:
+            return find_dll_dirs(directory, platform)
+        relative = self.get(key, lambda: [
+            str(Path(found).relative_to(directory))
+            for found in find_dll_dirs(directory, platform)
+        ])
+        return [str(directory / part) for part in relative]
+
+    def file_hash(self, path):
+        try:
+            stat = path.stat()
+            key = ("hash", self.identity(path), stat.st_size,
+                   stat.st_mtime_ns, stat.st_ctime_ns)
+        except OSError:
+            return md5_file(path)
+        return self.get(key, lambda: md5_file(path))
+
+
+def _scan_game(game, scan_cache, metadata_executor):
+    install_dirs = game_install_dirs(game)
+    if not install_dirs:
+        return None
+    protection_warnings: List[str] = []
+    for directory in install_dirs:
+        for warning in detect_protections(game["name"], directory):
+            if warning not in protection_warnings:
+                protection_warnings.append(warning)
+    game["protectionWarnings"] = protection_warnings
+    game["protected"] = bool(protection_warnings)
+
+    dll_dirs: List[str] = []
+    for install_dir in install_dirs:
+        for directory in scan_cache.dll_dirs(install_dir, game["platform"]):
+            if directory not in dll_dirs:
+                dll_dirs.append(directory)
+    game["dllDirs"] = dll_dirs
+    game["installCount"] = len(install_dirs)
+
+    installed_unlockers: List[str] = []
+    for directory in dll_dirs:
+        detected = get_installed_unlocker(directory, game["platform"], scan_cache.file_hash)
+        if detected and detected not in installed_unlockers:
+            installed_unlockers.append(detected)
+    game["installedUnlockers"] = installed_unlockers
+    game["installedUnlocker"] = installed_unlockers[0] if len(installed_unlockers) == 1 else ("mixed" if installed_unlockers else None)
+    game["installed"] = bool(installed_unlockers)
+
+    try:
+        if game["platform"] == "Steam":
+            game["dlc"] = get_steam_dlc(game["appId"], metadata_executor)
+        else:
+            game["dlc"] = query_epic_catalog(game["appId"])
+    except Exception:
+        game["dlc"] = []
+    game["dllAvailability"] = {
+        "creamapi": dll_available("creamapi", 32) or dll_available("creamapi", 64),
+        "smokeapi": dll_available("smokeapi", 32) or dll_available("smokeapi", 64),
+        "screamapi": dll_available("screamapi", 32) or dll_available("screamapi", 64),
+    }
+    return game
+
+
 def scan_games() -> List[dict]:
     games = get_steam_games() + get_epic_games()
-    result: List[dict] = []
-    for game in games:
-        install_dirs = game_install_dirs(game)
-        if not install_dirs:
-            continue
-        protection_warnings: List[str] = []
-        for directory in install_dirs:
-            for warning in detect_protections(game["name"], directory):
-                if warning not in protection_warnings:
-                    protection_warnings.append(warning)
-        game["protectionWarnings"] = protection_warnings
-        game["protected"] = bool(protection_warnings)
+    scan_cache = ScanCache()
+    # Separate bounded pools avoid nested-executor deadlocks. Metadata slots
+    # below cap external traffic even when game and DLC lookups overlap.
+    with ThreadPoolExecutor(max_workers=4) as metadata_executor, \
+            ThreadPoolExecutor(max_workers=4) as game_executor:
+        result = list(game_executor.map(
+            lambda game: _scan_game(game, scan_cache, metadata_executor), games
+        ))
+    return sorted((game for game in result if game is not None),
+                  key=lambda item: item["name"].lower())
 
-        dll_dirs: List[str] = []
-        for install_dir in install_dirs:
-            for directory in find_dll_dirs(install_dir, game["platform"]):
-                if directory not in dll_dirs:
-                    dll_dirs.append(directory)
-        game["dllDirs"] = dll_dirs
-        game["installCount"] = len(install_dirs)
-
-        installed_unlockers: List[str] = []
-        for directory in dll_dirs:
-            detected = get_installed_unlocker(directory, game["platform"])
-            if detected and detected not in installed_unlockers:
-                installed_unlockers.append(detected)
-        game["installedUnlockers"] = installed_unlockers
-        game["installedUnlocker"] = installed_unlockers[0] if len(installed_unlockers) == 1 else ("mixed" if installed_unlockers else None)
-        game["installed"] = bool(installed_unlockers)
-
-        try:
-            if game["platform"] == "Steam":
-                game["dlc"] = get_steam_dlc(game["appId"])
-            else:
-                game["dlc"] = query_epic_catalog(game["appId"])
-        except Exception:
-            game["dlc"] = []
-        game["dllAvailability"] = {
-            "creamapi": dll_available("creamapi", 32) or dll_available("creamapi", 64),
-            "smokeapi": dll_available("smokeapi", 32) or dll_available("smokeapi", 64),
-            "screamapi": dll_available("screamapi", 32) or dll_available("screamapi", 64),
-        }
-        result.append(game)
-    return sorted(result, key=lambda item: item["name"].lower())
 
 def load_dlc_choices() -> Dict[str, List[str]]:
     data = read_json(DLC_CHOICES)
@@ -1460,6 +1544,10 @@ class MainWindow(QMainWindow):
         self.dlc_choices = load_dlc_choices()
         self.scan_worker: Optional[ScanWorker] = None
         self.action_worker: Optional[ActionWorker] = None
+        self.banner_manager = QNetworkAccessManager(self)
+        self.banner_reply = None
+        self.banner_app_id = None
+        self.banner_failures = set()
         self.setWindowTitle(f"CreamLinux {VERSION}")
         self.resize(1200, 700)
         self.setMinimumSize(900, 520)
@@ -1753,7 +1841,9 @@ class MainWindow(QMainWindow):
             if (self.current_filter == "All" or game["platform"] == self.current_filter)
             and (not query or query in game["name"].lower())
         ]
-        current_id = self.current_game.get("appId") if self.current_game else None
+        current_key = ((self.current_game["platform"], self.current_game["appId"])
+                       if self.current_game else None)
+        self.game_list.setUpdatesEnabled(False)
         self.game_list.blockSignals(True)
         self.game_list.clear()
         selected_row = -1
@@ -1765,16 +1855,22 @@ class MainWindow(QMainWindow):
             item = QListWidgetItem(f"{game['platform'][:3].upper()}  ·  {game['name']}{installed}{warning}{no_dll}   ·  {dlc_count} DLC")
             item.setData(Qt.ItemDataRole.UserRole, game.get("appId"))
             self.game_list.addItem(item)
-            if game.get("appId") == current_id:
+            if (game["platform"], game["appId"]) == current_key:
                 selected_row = row
-        self.game_list.blockSignals(False)
-        if selected_row >= 0:
+        if self.filtered_games:
+            selected_row = selected_row if selected_row >= 0 else 0
             self.game_list.setCurrentRow(selected_row)
-        elif self.filtered_games:
-            self.game_list.setCurrentRow(0)
+            selected_game = self.filtered_games[selected_row]
+            # Typing should not rebuild hundreds of DLC widgets or reset the
+            # selected backend when the selected game has not changed.
+            if selected_game is not self.current_game:
+                self.current_game = selected_game
+                self.render_current_game()
         else:
             self.current_game = None
             self.stack.setCurrentIndex(0)
+        self.game_list.blockSignals(False)
+        self.game_list.setUpdatesEnabled(True)
 
     def start_scan(self):
         if self.scan_worker and self.scan_worker.isRunning():
@@ -1791,6 +1887,7 @@ class MainWindow(QMainWindow):
 
     def scan_finished(self, games):
         self.games = list(games)
+        self.banner_failures.clear()
         steam_count = sum(1 for game in self.games if game["platform"] == "Steam")
         epic_count = sum(1 for game in self.games if game["platform"] == "Epic")
         self.count_label.setText(f"Steam: {steam_count}   ·   Epic: {epic_count}")
@@ -1890,18 +1987,62 @@ class MainWindow(QMainWindow):
         self.hero_subtitle.setText(f"{platform} · {dlc_count} DLC detectados · {install_count} instalación{'es' if install_count != 1 else ''}")
 
         banner_loaded = False
+        app_id = str(game.get("appId", "")) if game.get("platform") == "Steam" else None
+        if self.banner_reply is not None and self.banner_app_id != app_id:
+            reply, self.banner_reply = self.banner_reply, None
+            reply.abort()
         if game.get("platform") == "Steam":
-            banner_path = fetch_steam_banner(str(game.get("appId", "")))
-            if banner_path and banner_path.exists():
+            banner_path = steam_banner_path(app_id)
+            if banner_path.exists():
                 pixmap = QPixmap(str(banner_path))
                 if not pixmap.isNull():
                     self.hero_banner.setText("")
                     self.hero_banner.setSourcePixmap(pixmap)
                     banner_loaded = True
+            if not banner_loaded and app_id and app_id not in self.banner_failures:
+                if self.banner_reply is None:
+                    self.request_banner(app_id)
 
         if not banner_loaded:
             self.hero_banner.clearSourcePixmap()
             self.hero_banner.setText("IMAGEN NO DISPONIBLE")
+
+    def request_banner(self, app_id: str, attempt: int = 0):
+        hosts = ("cdn.cloudflare.steamstatic.com", "cdn.akamai.steamstatic.com")
+        request = QNetworkRequest(QUrl(f"https://{hosts[attempt]}/steam/apps/{app_id}/header.jpg"))
+        request.setRawHeader(b"User-Agent", f"CreamLinux/{VERSION}".encode())
+        request.setTransferTimeout(10000)
+        reply = self.banner_manager.get(request)
+        self.banner_reply = reply
+        self.banner_app_id = app_id
+        reply.finished.connect(lambda: self.banner_finished(reply, app_id, attempt))
+
+    def banner_finished(self, reply, app_id: str, attempt: int):
+        if reply is not self.banner_reply:
+            reply.deleteLater()
+            return
+        self.banner_reply = None
+        data = bytes(reply.readAll()) if reply.error() == QNetworkReply.NetworkError.NoError else b""
+        reply.deleteLater()
+        if data:
+            try:
+                steam_banner_path(app_id).write_bytes(data)
+            except OSError:
+                data = b""
+        if not data:
+            if attempt == 0:
+                self.request_banner(app_id, 1)
+                return
+            self.banner_failures.add(app_id)
+        game = self.current_game
+        if game and game["platform"] == "Steam" and str(game["appId"]) == app_id:
+            if data:
+                # No network access in render_hero: the completed download is
+                # now cached. Do not rebuild the rest of the game/DLC panel.
+                pixmap = QPixmap(str(steam_banner_path(app_id)))
+                if not pixmap.isNull():
+                    self.hero_banner.setText("")
+                    self.hero_banner.setSourcePixmap(pixmap)
 
 
     def set_unlocker(self, value: str):
@@ -1942,9 +2083,10 @@ class MainWindow(QMainWindow):
         dlcs = game.get("dlc", [])
         saved = self.dlc_choices.get(str(game["appId"]))
         selected = set(saved if saved is not None else [str(dlc["id"]) for dlc in dlcs])
+        self.dlc_table.setUpdatesEnabled(False)
         self.dlc_table.setRowCount(0)
+        self.dlc_table.setRowCount(len(dlcs))
         for row, dlc in enumerate(dlcs):
-            self.dlc_table.insertRow(row)
             checkbox = QCheckBox()
             checkbox.setChecked(str(dlc["id"]) in selected)
             checkbox.stateChanged.connect(self.persist_current_choices)
@@ -1966,6 +2108,7 @@ class MainWindow(QMainWindow):
             self.dlc_table.setItem(0, 0, empty)
             self.dlc_table.setSpan(0, 0, 1, 3)
             self._set_status("La tienda no devolvió DLC para este juego; la instalación sigue disponible")
+        self.dlc_table.setUpdatesEnabled(True)
 
     def set_all_dlc(self, enabled: bool):
         for row in range(self.dlc_table.rowCount()):
@@ -2093,6 +2236,9 @@ def main() -> int:
     app.setApplicationVersion(VERSION)
     app.setOrganizationName("CreamLinux")
     app.setDesktopFileName(APP_ID)
+    icon = ASSETS_DIR / "creamlinux-dlc-unlocker.png"
+    if icon.exists():
+        app.setWindowIcon(QIcon(str(icon)))
     app.setStyle("Fusion")
     window = MainWindow()
     window.show()

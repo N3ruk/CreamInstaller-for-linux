@@ -24,10 +24,10 @@ Utiliza la página de **GitHub Releases** para descargar las versiones empaqueta
 
 | Paquete | Recomendado para |
 | --- | --- |
-| `CreamLinux-1.0.1-x86_64.AppImage` | La mayoría de distribuciones Linux x86_64 — portable, no requiere instalación |
-| `CreamLinux-1.0.1.deb` | Ubuntu, Debian y distribuciones compatibles |
-| `CreamLinux-1.0.1.zip` | Instalación universal/desde código fuente en Linux |
-| `CreamLinux-1.0.1-SteamOS.zip` | SteamOS / Steam Deck — instalación en espacio de usuario sin modificar el sistema inmutable |
+| `CreamLinux-1.0.2-x86_64.AppImage` | La mayoría de distribuciones Linux x86_64 — portable, no requiere instalación |
+| `CreamLinux-1.0.2.deb` | Ubuntu, Debian y distribuciones compatibles |
+| `CreamLinux-1.0.2.zip` | Instalación universal/desde código fuente en Linux |
+| `CreamLinux-1.0.2-SteamOS.zip` | SteamOS / Steam Deck — instalación en espacio de usuario sin modificar el sistema inmutable |
 
 ## Compatibilidad
 
@@ -49,7 +49,7 @@ El paquete para SteamOS se instala en el directorio personal del usuario y **no*
 
 ## Instalación universal
 
-Extrae `CreamLinux-1.0.1.zip` y ejecuta:
+Extrae `CreamLinux-1.0.2.zip` y ejecuta:
 
 ```bash
 chmod +x install.sh
@@ -64,7 +64,7 @@ sudo ./install.sh --system
 
 ## Instalación en SteamOS
 
-Extrae `CreamLinux-1.0.1-SteamOS.zip` y ejecuta:
+Extrae `CreamLinux-1.0.2-SteamOS.zip` y ejecuta:
 
 ```bash
 chmod +x install.sh
@@ -76,8 +76,8 @@ La instalación permanece dentro del directorio personal del usuario actual, por
 ## AppImage
 
 ```bash
-chmod +x CreamLinux-1.0.1-x86_64.AppImage
-./CreamLinux-1.0.1-x86_64.AppImage
+chmod +x CreamLinux-1.0.2-x86_64.AppImage
+./CreamLinux-1.0.2-x86_64.AppImage
 ```
 
 ## Ejecución portable desde el código fuente
