@@ -10,7 +10,7 @@
 - Download artwork asynchronously through Qt and cancel obsolete requests.
 - Keep the unchanged selected-game panel while filtering; avoid redundant
   DLC-widget rebuilding and intermediate list repaints on every keystroke.
-- Match the existing launcher's blue DLC icon in the window, taskbar and packages.
+- Match the definitive red DLC launcher icon in the window, taskbar and packages.
 - No layout, discovery-rule, DLC-selection, installation/restoration or
   compatibility-binary changes.
 

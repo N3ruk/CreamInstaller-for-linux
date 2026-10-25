@@ -2,7 +2,7 @@
 
 Performance-only update for game scanning, searching and artwork loading.
 The existing UI, game discovery rules and DLC installation/restoration logic
-are retained. Window and taskbar icons match the blue DLC launcher icon.
+are retained. Window and taskbar icons match the red DLC launcher icon.
 
 ## Improvements
 
