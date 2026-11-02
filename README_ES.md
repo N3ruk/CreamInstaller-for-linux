@@ -1,5 +1,7 @@
 # CreamLinux
 
+[English](README.md)
+
 **CreamLinux** es un gestor de escritorio nativo en Qt para Linux que detecta juegos instalados de Steam y Epic/Heroic/Legendary, obtiene los metadatos de sus DLC, agrupa instalaciones duplicadas y gestiona los backends de configuración de DLC compatibles desde una única interfaz.
 
 Está diseñado en torno a un objetivo sencillo: **mostrar claramente la biblioteca real de juegos, detectar todas las rutas de instalación válidas y hacer que la configuración y la recuperación sean predecibles.**
